@@ -1,9 +1,14 @@
 package com.destroytoday.twitteraspirin {
+	import com.destroytoday.net.StringLoader;
 	import com.destroytoday.net.XMLLoader;
 	import com.destroytoday.pool.ObjectPool;
+	import com.destroytoday.twitteraspirin.net.StringLoaderPool;
+	import com.destroytoday.twitteraspirin.net.XMLLoaderPool;
 	import com.destroytoday.twitteraspirin.oauth.OAuth;
 	
 	import org.iotashan.oauth.OAuthConsumer;
+	import org.robotlegs.base.ContextBase;
+	import org.robotlegs.core.IContext;
 
 	/**
 	 * The Twitter class
@@ -15,9 +20,24 @@ package com.destroytoday.twitteraspirin {
 		//
 		
 		/**
+		 * @private 
+		 */		
+		protected var context:TwitterContext;
+		
+		/**
 		 * @private
 		 */		
-		protected var _oauth:OAuth;
+		protected var _oauth:OAuth = new OAuth();
+		
+		/**
+		 * @private 
+		 */		
+		protected var _stringLoaderPool:StringLoaderPool = new StringLoaderPool(StringLoader);
+
+		/**
+		 * @private 
+		 */		
+		protected var _xmlLoaderPool:XMLLoaderPool = new XMLLoaderPool(XMLLoader);
 		
 		/**
 		 * Instantiates the Twitter class.
@@ -25,8 +45,10 @@ package com.destroytoday.twitteraspirin {
 		 * @param consumerSecret the consumer secret for the Twitter application
 		 */		
 		public function Twitter(consumerKey:String = null, consumerSecret:String = null) {
+			context = new TwitterContext(this);
+			
 			if (consumerKey && consumerSecret) {
-				setConsumerInfo(consumerKey, consumerSecret);
+				oauth.setConsumerCredentials(consumerKey, consumerSecret);
 			}
 		}
 		
@@ -42,19 +64,22 @@ package com.destroytoday.twitteraspirin {
 			return _oauth;
 		}
 		
-		//
-		// Methods
-		//
-		
 		/**
-		 * Sets the consumer information for the Twitter application.
-		 * @param consumerKey the consumer key for the Twitter application
-		 * @param consumerSecret the consumer secret for the Twitter application
+		 * @private
+		 * Returns the StringLoader pool.
+		 * @return 
 		 */		
-		public function setConsumerInfo(consumerKey:String, consumerSecret:String):void {
-			//TODO - if _oauth exists, dispose and recycle
-			
-			_oauth = new OAuth(consumerKey, consumerSecret);
+		internal function get stringLoaderPool():StringLoaderPool {
+			return _stringLoaderPool;
+		}
+
+		/**
+		 * @private
+		 * Returns the XMLLoader pool.
+		 * @return 
+		 */		
+		internal function get xmlLoaderPool():XMLLoaderPool {
+			return _xmlLoaderPool;
 		}
 	}
 }
