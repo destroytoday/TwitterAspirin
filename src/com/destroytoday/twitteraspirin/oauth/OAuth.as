@@ -7,11 +7,14 @@ package com.destroytoday.twitteraspirin.oauth {
 	import com.destroytoday.twitteraspirin.constants.TwitterURL;
 	import com.destroytoday.twitteraspirin.net.StringLoaderPool;
 	import com.destroytoday.twitteraspirin.net.XMLLoaderPool;
+	import com.destroytoday.twitteraspirin.signals.AccountCallsSignal;
 	import com.destroytoday.twitteraspirin.util.TwitterParserUtil;
 	import com.destroytoday.twitteraspirin.vo.UserVO;
 	
 	import flash.net.URLRequest;
 	import flash.net.URLRequestMethod;
+	
+	import mx.utils.ObjectUtil;
 	
 	import org.iotashan.oauth.OAuthConsumer;
 	import org.iotashan.oauth.OAuthRequest;
@@ -25,6 +28,9 @@ package com.destroytoday.twitteraspirin.oauth {
 	 * @author Jonnie Hallman
 	 */	
 	public class OAuth {
+		[Inject]
+		public var accountCallsSignal:AccountCallsSignal;
+		
 		[Inject]
 		public var stringLoaderPool:StringLoaderPool;
 		
@@ -200,11 +206,16 @@ package com.destroytoday.twitteraspirin.oauth {
 			
 			loader.completeSignal.addOnce(verifyAccessTokenHandler);
 			
+			loader.includeResponseInfo = false;
 			loader.request.url = request.buildRequest(signature);
 			
 			loader.load();
 			
 			return loader;
+		}
+		
+		public function parseURL(method:String, url:String, parameters:Object = null):String {
+			return new OAuthRequest(method, url, parameters, consumer, accessToken).buildRequest(signature);
 		}
 		
 		/**
@@ -239,8 +250,8 @@ package com.destroytoday.twitteraspirin.oauth {
 		 * @param data the Twitter user data
 		 */		
 		protected function verifyAccessTokenHandler(loader:XMLLoader, data:XML):void {
-			var user:UserVO = TwitterParserUtil.parseUser(data);
-			
+			//var user:UserVO = TwitterParserUtil.parseUser(data);
+
 			_verifyAccessTokenSignal.dispatch(this, accessToken);
 			
 			xmlLoaderPool.disposeObject(loader);

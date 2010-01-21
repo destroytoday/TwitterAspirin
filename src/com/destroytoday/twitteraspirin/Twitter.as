@@ -4,6 +4,7 @@ package com.destroytoday.twitteraspirin {
 	import com.destroytoday.pool.ObjectPool;
 	import com.destroytoday.twitteraspirin.core.Account;
 	import com.destroytoday.twitteraspirin.core.TwitterContext;
+	import com.destroytoday.twitteraspirin.core.Users;
 	import com.destroytoday.twitteraspirin.net.StringLoaderPool;
 	import com.destroytoday.twitteraspirin.net.XMLLoaderPool;
 	import com.destroytoday.twitteraspirin.oauth.OAuth;
@@ -29,15 +30,20 @@ package com.destroytoday.twitteraspirin {
 		protected var context:TwitterContext;
 		
 		/**
-		 * @private 
-		 */		
-		protected var _account:Account = new Account();
-
-		/**
 		 * @private
 		 */		
 		protected var _oauth:OAuth = new OAuth();
 		
+		/**
+		 * @private 
+		 */		
+		protected var _account:Account = new Account();
+		
+		/**
+		 * @private 
+		 */		
+		protected var _users:Users = new Users();
+
 		/**
 		 * @private 
 		 */		
@@ -65,16 +71,29 @@ package com.destroytoday.twitteraspirin {
 		// Instance getters
 		//
 		
-		public function get account():Account {
-			return _account;
-		}
-		
 		/**
 		 * Returns the OAuth instance.
 		 * @return 
 		 */		
 		public function get oauth():OAuth {
 			return _oauth;
+		}
+		
+		/**
+		 * Returns the Account instance. 
+		 * @return 
+		 */		
+		public function get account():Account {
+			return _account;
+		}
+		
+		/**
+		 * Returns the Users instance. 
+		 * @return 
+		 * 
+		 */		
+		public function get users():Users {
+			return _users;
 		}
 		
 		/**

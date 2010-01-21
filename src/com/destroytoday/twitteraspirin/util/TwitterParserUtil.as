@@ -3,7 +3,10 @@ package com.destroytoday.twitteraspirin.util {
 	import com.destroytoday.twitteraspirin.vo.StatusVO;
 	import com.destroytoday.twitteraspirin.vo.UserVO;
 	
+	import flash.net.URLRequestHeader;
 	import flash.system.System;
+	
+	import mx.utils.ObjectUtil;
 
 	/**
 	 * The TwitterParserUtil takes XML data and returns the appropriate value object.
@@ -15,6 +18,23 @@ package com.destroytoday.twitteraspirin.util {
 		 */		
 		public function TwitterParserUtil() {
 			throw Error("The TwitterParserUtil class cannot be instantiated.");
+		}
+		
+		public static function parseAccountCallInfo(headers:Array):void {
+			var remainingCalls:int, totalCalls:int;
+			var callsResetDate:Date;
+			
+			for each(var header:URLRequestHeader in headers) {
+				if (header.name == "X-Ratelimit-Limit") {
+					totalCalls = int(header.value);
+				} else if (header.name == "X-Ratelimit-Remaining") {
+					remainingCalls = int(header.value);
+				} else if (header.name == "X-Ratelimit-Reset") {
+					callsResetDate = new Date(int(header.value) * 1000);
+				}
+			}
+			
+			trace(remainingCalls, totalCalls, callsResetDate);
 		}
 		
 		/**
@@ -35,6 +55,7 @@ package com.destroytoday.twitteraspirin.util {
 			status.inReplyToScreenName = data.in_reply_to_screen_name;
 			status.favorited = String(data.favorited) == "true";
 			
+			// free XML from memory
 			System.disposeXML(data);
 			
 			return status;
@@ -50,7 +71,7 @@ package com.destroytoday.twitteraspirin.util {
 			
 			user.id = Number(data.id);
 			user.name = data.name;
-			user.screenName = data.screenName;
+			user.screenName = data.screen_name;
 			user.location = data.location;
 			user.description = data.description;
 			user.profileImageURL = data.profile_image_url;
@@ -67,6 +88,7 @@ package com.destroytoday.twitteraspirin.util {
 			user.verified = String(data.verified) == "true";
 			user.contributorsEnabled = String(data.contributors_enabled) == "true";
 			
+			// free XML from memory
 			System.disposeXML(data);
 			
 			return user;
@@ -87,6 +109,7 @@ package com.destroytoday.twitteraspirin.util {
 			directMessage.recipient = parseUser(data.recipient[0]);
 			directMessage.text = data.text;
 			
+			// free XML from memory
 			System.disposeXML(data);
 			
 			return directMessage;
@@ -104,6 +127,7 @@ package com.destroytoday.twitteraspirin.util {
 				statuses[statuses.length] = parseStatus(node);
 			}
 			
+			// free XML from memory
 			System.disposeXML(data);
 			
 			return statuses;
