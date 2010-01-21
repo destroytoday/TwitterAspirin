@@ -7,6 +7,8 @@ package com.destroytoday.twitteraspirin.oauth {
 	import com.destroytoday.twitteraspirin.constants.TwitterURL;
 	import com.destroytoday.twitteraspirin.net.StringLoaderPool;
 	import com.destroytoday.twitteraspirin.net.XMLLoaderPool;
+	import com.destroytoday.twitteraspirin.util.TwitterParserUtil;
+	import com.destroytoday.twitteraspirin.vo.UserVO;
 	
 	import flash.net.URLRequest;
 	import flash.net.URLRequestMethod;
@@ -237,7 +239,7 @@ package com.destroytoday.twitteraspirin.oauth {
 		 * @param data the Twitter user data
 		 */		
 		protected function verifyAccessTokenHandler(loader:XMLLoader, data:XML):void {
-			trace(data);
+			var user:UserVO = TwitterParserUtil.parseUser(data);
 			
 			_verifyAccessTokenSignal.dispatch(this, accessToken);
 			

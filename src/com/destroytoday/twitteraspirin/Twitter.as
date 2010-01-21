@@ -2,6 +2,8 @@ package com.destroytoday.twitteraspirin {
 	import com.destroytoday.net.StringLoader;
 	import com.destroytoday.net.XMLLoader;
 	import com.destroytoday.pool.ObjectPool;
+	import com.destroytoday.twitteraspirin.core.Account;
+	import com.destroytoday.twitteraspirin.core.TwitterContext;
 	import com.destroytoday.twitteraspirin.net.StringLoaderPool;
 	import com.destroytoday.twitteraspirin.net.XMLLoaderPool;
 	import com.destroytoday.twitteraspirin.oauth.OAuth;
@@ -15,6 +17,8 @@ package com.destroytoday.twitteraspirin {
 	 * @author Jonnie Hallman
 	 */	
 	public class Twitter {
+		public namespace twitter;
+		
 		//
 		// Instances
 		//
@@ -24,6 +28,11 @@ package com.destroytoday.twitteraspirin {
 		 */		
 		protected var context:TwitterContext;
 		
+		/**
+		 * @private 
+		 */		
+		protected var _account:Account = new Account();
+
 		/**
 		 * @private
 		 */		
@@ -56,6 +65,10 @@ package com.destroytoday.twitteraspirin {
 		// Instance getters
 		//
 		
+		public function get account():Account {
+			return _account;
+		}
+		
 		/**
 		 * Returns the OAuth instance.
 		 * @return 
@@ -69,7 +82,7 @@ package com.destroytoday.twitteraspirin {
 		 * Returns the StringLoader pool.
 		 * @return 
 		 */		
-		internal function get stringLoaderPool():StringLoaderPool {
+		public function get stringLoaderPool():StringLoaderPool {
 			return _stringLoaderPool;
 		}
 
@@ -78,7 +91,7 @@ package com.destroytoday.twitteraspirin {
 		 * Returns the XMLLoader pool.
 		 * @return 
 		 */		
-		internal function get xmlLoaderPool():XMLLoaderPool {
+		public function get xmlLoaderPool():XMLLoaderPool {
 			return _xmlLoaderPool;
 		}
 	}
