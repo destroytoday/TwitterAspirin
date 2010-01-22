@@ -151,6 +151,18 @@ package com.destroytoday.twitteraspirin.core {
 			return loader;
 		}
 		
+		/**
+		 * Loads the request for returning a search of the provided query
+		 * @param query the text to search for
+		 * @param sinceID the id to return statuses since
+		 * @param count the number of statuses to return (maximum 100)
+		 * @param page the page of statuses to return, starting at 1
+		 * @param geocode the location to return statuses for in 'latitude,longitude,radius' format, where radius is specified by 'mi' or 'km'
+		 * @param showUser specifies whether to prepend the status text with the user's screen name
+		 * @param language restricts tweets to the given language, give by an ISO-639-1 code
+		 * @param locale the language of the query you are sending
+		 * @return 
+		 */		
 		public function getSearchTimeline(query:String, sinceID:Number = NaN, count:int = 20, page:int = 1, geocode:String = null, showUser:Boolean = false, language:String = null, locale:String = null):XMLLoader {
 			var parameters:URLVariables = new URLVariables();
 			
