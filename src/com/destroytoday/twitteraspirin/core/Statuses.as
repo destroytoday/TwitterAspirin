@@ -9,6 +9,8 @@ package com.destroytoday.twitteraspirin.core {
 	import flash.net.URLRequestMethod;
 	import flash.net.URLVariables;
 	
+	import mx.utils.ObjectUtil;
+	
 	import org.osflash.signals.Signal;
 
 	/**
@@ -42,6 +44,11 @@ package com.destroytoday.twitteraspirin.core {
 		 * @private 
 		 */
 		protected var _getMentionsTimelineSignal:Signal = new Signal(Statuses, Vector.<StatusVO>);
+		
+		/**
+		 * @private 
+		 */
+		protected var _getSearchTimelineSignal:Signal = new Signal(Statuses, Vector.<StatusVO>);
 
 		/**
 		 * Constructs the Statuses instance.
@@ -71,6 +78,14 @@ package com.destroytoday.twitteraspirin.core {
 		 */		
 		public function get getMentionsTimelineSignal():Signal {
 			return _getMentionsTimelineSignal;
+		}
+		
+		/**
+		 * Returns the Signal that dispatches when getSearchTimeline is complete.
+		 * @return 
+		 */		
+		public function get getSearchTimelineSignal():Signal {
+			return _getSearchTimelineSignal;
 		}
 
 		/**
@@ -113,17 +128,47 @@ package com.destroytoday.twitteraspirin.core {
 			return loader;
 		}
 		
-		public function getMentionsTimeline(sinceID:Number = NaN, maxID:Number = NaN, count:int = 20, page:int = 0):XMLLoader {
+		/**
+		 * Loads the request for returning the authenticated user's mentions timeline.
+		 * @param sinceID the id to return mentions since
+		 * @param maxID the maximum status id
+		 * @param count the number of mentions to return
+		 * @param page the page of mentions to return, starting at 1
+		 * @return the loader of the operation
+		 */		
+		public function getMentionsTimeline(sinceID:Number = NaN, maxID:Number = NaN, count:int = 20, page:int = 1):XMLLoader {
 			var parameters:URLVariables = new URLVariables();
 			
 			if (sinceID > 0) parameters['since_id'] = sinceID;
 			if (maxID > 0) parameters['max_id'] = maxID;
 			parameters['count'] = count;
-			if (page > 0) parameters['page'] = page;
+			if (page > 1) parameters['page'] = page;
 			
 			var loader:XMLLoader = loaderFactory.getXMLLoader(getMentionsTimelineHandler);
 			
 			loader.load(oauth.parseURL(URLRequestMethod.GET, TwitterURL.GET_MENTIONS_TIMELINE, parameters));
+			
+			return loader;
+		}
+		
+		public function getSearchTimeline(query:String, sinceID:Number = NaN, count:int = 20, page:int = 1, geocode:String = null, showUser:Boolean = false, language:String = null, locale:String = null):XMLLoader {
+			var parameters:URLVariables = new URLVariables();
+			
+			parameters['q'] = query;
+			if (sinceID > 0) parameters['sinceID'] = sinceID;
+			parameters['count'] = count;
+			if (page > 1) parameters['page'] = page;
+			if (geocode) parameters['geocode'] = geocode;
+			if (showUser) parameters['show_user'] = "true";
+			if (language) parameters['language'] = language;
+			if (locale) parameters['locale'] = locale;
+			
+			var loader:XMLLoader = loaderFactory.getXMLLoader(getSearchTimelineHandler);
+			
+			// search does use API calls, but doesn't return call info headers
+			loader.includeResponseInfo = false;
+
+			loader.load(oauth.parseURL(URLRequestMethod.GET, TwitterURL.GET_SEARCH_TIMELINE, parameters));
 			
 			return loader;
 		}
@@ -153,6 +198,16 @@ package com.destroytoday.twitteraspirin.core {
 		 */		
 		protected function getMentionsTimelineHandler(loader:XMLLoader, data:XML):void {
 			_getMentionsTimelineSignal.dispatch(this, TwitterParser.parseStatuses(data));
+		}
+		
+		/**
+		 * @private
+		 * @param loader
+		 * @param data
+		 */		
+		protected function getSearchTimelineHandler(loader:XMLLoader, data:XML):void {
+			trace(data);
+			_getSearchTimelineSignal.dispatch(this, TwitterParser.parseSearchStatuses(data));
 		}
 	}
 }

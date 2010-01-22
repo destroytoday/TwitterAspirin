@@ -13,6 +13,9 @@ package com.destroytoday.twitteraspirin.util {
 	 * @author Jonnie Hallman
 	 */	
 	public class TwitterParser {
+		namespace atom = "http://www.w3.org/2005/Atom";
+		namespace twitter = "http://api.twitter.com/";
+		
 		/**
 		 * @private
 		 */		
@@ -100,7 +103,7 @@ package com.destroytoday.twitteraspirin.util {
 		}
 		
 		/**
-		 * Parses the XML data of a series of statuses into a vector of status value objects.
+		 * Parses the XML data of a list of statuses into a vector of status value objects.
 		 * @param data the XML data
 		 * @return the vector of status value objects
 		 */		
@@ -109,6 +112,45 @@ package com.destroytoday.twitteraspirin.util {
 			
 			for each (var node:XML in data.status) {
 				statuses[statuses.length] = parseStatus(node);
+			}
+			
+			// free XML from memory
+			System.disposeXML(data);
+			
+			return statuses;
+		}
+		
+		/**
+		 * Parses the Atom data of a list of search statuses into a vector of status value objects.
+		 * @param data the Atom data
+		 * @return the vector of status value objects
+		 */		
+		public static function parseSearchStatuses(data:XML):Vector.<StatusVO> {
+			var status:StatusVO;
+			var id:String, date:String, time:String, user:String;
+			var datetime:Array;
+			var statuses:Vector.<StatusVO> = new Vector.<StatusVO>();
+			
+			for each (var node:XML in data.atom::entry) {
+				status = new StatusVO();
+				
+				id = node.atom::id;
+				datetime = String(node.atom::published).split("T");
+				date = String(datetime[0]).split("-").join("/");
+				time = datetime[1];
+				time = time.substr(0, time.length - 1);
+				user = node.atom::author.atom::name;
+				
+				status.id = Number(id.substr(id.lastIndexOf (":") + 1));
+				status.createdAt = new Date(Date.parse(date + " " + time));
+				status.text = node.atom::title;
+				status.source = node.twitter::source;
+				status.user = new UserVO();
+				status.user.name = user.substring(user.indexOf(" ") + 2, user.length - 1);
+				status.user.screenName = user.substr(0, user.indexOf(" "));
+				status.user.profileImageURL = String(node.atom::link[1].@href);
+				
+				statuses[statuses.length] = status;
 			}
 			
 			// free XML from memory

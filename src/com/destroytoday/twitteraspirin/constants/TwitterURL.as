@@ -45,6 +45,11 @@ package com.destroytoday.twitteraspirin.constants {
 		public static const GET_MENTIONS_TIMELINE:String = "https://twitter.com/statuses/mentions.xml";
 		
 		/**
+		 * GET 
+		 */		
+		public static const GET_SEARCH_TIMELINE:String = "https://search.twitter.com/search.atom";
+		
+		/**
 		 * @private
 		 */		
 		public function TwitterURL() {
