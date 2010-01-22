@@ -9,15 +9,15 @@ package com.destroytoday.twitteraspirin.util {
 	import mx.utils.ObjectUtil;
 
 	/**
-	 * The TwitterParserUtil takes XML data and returns the appropriate value object.
+	 * The TwitterParser takes XML data and returns the appropriate value object.
 	 * @author Jonnie Hallman
 	 */	
-	public class TwitterParserUtil {
+	public class TwitterParser {
 		/**
 		 * @private
 		 */		
-		public function TwitterParserUtil() {
-			throw Error("The TwitterParserUtil class cannot be instantiated.");
+		public function TwitterParser() {
+			throw Error("The TwitterParser class cannot be instantiated.");
 		}
 		
 		public static function parseAccountCallInfo(headers:Array):void {
@@ -34,7 +34,7 @@ package com.destroytoday.twitteraspirin.util {
 				}
 			}
 			
-			trace(remainingCalls, totalCalls, callsResetDate);
+			trace(totalCalls, remainingCalls, callsResetDate);
 		}
 		
 		/**

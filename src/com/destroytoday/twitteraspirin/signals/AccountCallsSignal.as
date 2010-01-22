@@ -7,8 +7,8 @@ package com.destroytoday.twitteraspirin.signals {
 	 * @author Jonnie Hallman
 	 */	
 	public class AccountCallsSignal extends Signal implements ISignal {
-		public function AccountCallsSignal(...parameters) {
-			super(parameters);
+		public function AccountCallsSignal() {
+			super(int, int, Date);
 		}
 	}
 }

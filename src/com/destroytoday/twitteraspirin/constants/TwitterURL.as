@@ -22,12 +22,17 @@ package com.destroytoday.twitteraspirin.constants {
 		/**
 		 * GET 
 		 */		
-		public static const OAUTH_VERIFY_ACCESS_TOKEN:String = "http://twitter.com/account/verify_credentials.xml";
+		public static const OAUTH_VERIFY_ACCESS_TOKEN:String = "https://twitter.com/account/verify_credentials.xml";
 		
 		/**
 		 * GET 
 		 */		
 		public static const GET_USER:String = "http://twitter.com/users/show.xml";
+		
+		/**
+		 * POST 
+		 */		
+		public static const UPDATE_STATUS:String = "https://twitter.com/statuses/update.xml";
 		
 		/**
 		 * @private

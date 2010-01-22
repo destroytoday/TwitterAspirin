@@ -8,7 +8,7 @@ package com.destroytoday.twitteraspirin.oauth {
 	import com.destroytoday.twitteraspirin.net.StringLoaderPool;
 	import com.destroytoday.twitteraspirin.net.XMLLoaderPool;
 	import com.destroytoday.twitteraspirin.signals.AccountCallsSignal;
-	import com.destroytoday.twitteraspirin.util.TwitterParserUtil;
+	import com.destroytoday.twitteraspirin.util.TwitterParser;
 	import com.destroytoday.twitteraspirin.vo.UserVO;
 	
 	import flash.net.URLRequest;
@@ -181,7 +181,7 @@ package com.destroytoday.twitteraspirin.oauth {
 				
 				return null;
 			}
-			
+
 			var request:OAuthRequest = new OAuthRequest(URLRequestMethod.GET, TwitterURL.OAUTH_ACCESS_TOKEN, {oauth_verifier: pin}, consumer, requestToken);
 			var loader:StringLoader = stringLoaderPool.getObject() as StringLoader;
 			
@@ -201,7 +201,9 @@ package com.destroytoday.twitteraspirin.oauth {
 		 * @return the XMLLoader loading the verification
 		 */		
 		public function verifyAccessToken(token:OAuthToken):XMLLoader {
-			var request:OAuthRequest = new OAuthRequest(URLRequestMethod.GET, TwitterURL.OAUTH_VERIFY_ACCESS_TOKEN, null, consumer, token);
+			accessToken = token;
+			
+			var request:OAuthRequest = new OAuthRequest(URLRequestMethod.GET, TwitterURL.OAUTH_VERIFY_ACCESS_TOKEN, null, consumer, accessToken);
 			var loader:XMLLoader = xmlLoaderPool.getObject() as XMLLoader;
 			
 			loader.completeSignal.addOnce(verifyAccessTokenHandler);
@@ -215,7 +217,7 @@ package com.destroytoday.twitteraspirin.oauth {
 		}
 		
 		public function parseURL(method:String, url:String, parameters:Object = null):String {
-			return new OAuthRequest(method, url, parameters, consumer, accessToken).buildRequest(signature);
+			return new OAuthRequest(method, url, parameters, consumer, accessToken).buildRequest(new OAuthSignatureMethod_HMAC_SHA1());
 		}
 		
 		/**
@@ -225,7 +227,7 @@ package com.destroytoday.twitteraspirin.oauth {
 		 */		
 		protected function getRequestTokenCompleteHandler(loader:StringLoader, data:String):void {
 			requestToken = OAuthUtil.getTokenFromResponse(data);
-			
+
 			_requestTokenSignal.dispatch(this, requestToken);
 			
 			stringLoaderPool.disposeObject(loader);
@@ -237,8 +239,6 @@ package com.destroytoday.twitteraspirin.oauth {
 		 * @param data the access token data in string query format
 		 */		
 		protected function getAccessTokenCompleteHandler(loader:StringLoader, data:String):void {
-			accessToken = OAuthUtil.getTokenFromResponse(data);
-			
 			_accessTokenSignal.dispatch(this, accessToken);
 			
 			stringLoaderPool.disposeObject(loader);

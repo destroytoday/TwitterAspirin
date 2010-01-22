@@ -3,6 +3,7 @@ package com.destroytoday.twitteraspirin {
 	import com.destroytoday.net.XMLLoader;
 	import com.destroytoday.pool.ObjectPool;
 	import com.destroytoday.twitteraspirin.core.Account;
+	import com.destroytoday.twitteraspirin.core.Statuses;
 	import com.destroytoday.twitteraspirin.core.TwitterContext;
 	import com.destroytoday.twitteraspirin.core.Users;
 	import com.destroytoday.twitteraspirin.net.StringLoaderPool;
@@ -43,6 +44,11 @@ package com.destroytoday.twitteraspirin {
 		 * @private 
 		 */		
 		protected var _users:Users = new Users();
+		
+		/**
+		 * @private 
+		 */		
+		protected var _statuses:Statuses = new Statuses();
 
 		/**
 		 * @private 
@@ -90,10 +96,17 @@ package com.destroytoday.twitteraspirin {
 		/**
 		 * Returns the Users instance. 
 		 * @return 
-		 * 
 		 */		
 		public function get users():Users {
 			return _users;
+		}
+		
+		/**
+		 * Returns the Statuses instance.
+		 * @return 
+		 */		
+		public function get statuses():Statuses {
+			return _statuses;
 		}
 		
 		/**

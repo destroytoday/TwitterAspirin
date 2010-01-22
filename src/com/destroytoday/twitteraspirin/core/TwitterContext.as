@@ -46,28 +46,25 @@ package com.destroytoday.twitteraspirin.core {
 		protected function startup():void {
 			injector.mapValue(ISignalCommandMap, signalCommandMap);
 			
-			injector.mapValue(AccountCallsSignal, new AccountCallsSignal(int, int, Date));
+			injector.mapSingleton(AccountCallsSignal);
+			
 			injector.mapValue(Twitter, twitter);
 			injector.mapValue(StringLoaderPool, twitter.stringLoaderPool);
 			injector.mapValue(XMLLoaderPool, twitter.xmlLoaderPool);
 			injector.mapValue(OAuth, twitter.oauth);
 			injector.mapValue(Account, twitter.account);
 			injector.mapValue(Users, twitter.users);
+			injector.mapValue(Statuses, twitter.statuses);
 
 			injector.injectInto(twitter.oauth);
 			injector.injectInto(twitter.account);
 			injector.injectInto(twitter.users);
+			injector.injectInto(twitter.statuses);
 			
-			//temp
+			//TEMP
 			twitter.account.setupListeners();
 			
-			/*var startupSignal:StartupSignal = new StartupSignal();
-			
-			signalCommandMap.mapSignal(startupSignal, StartupCommand, true);
-			
-			startupSignal.dispatch();*/
-			
-			//(signalCommandMap.mapSignalClass(StartupSignal, StartupCommand, true) as Signal).dispatch();
+			//StartupSignal(signalCommandMap.mapSignalClass(StartupSignal, StartupCommand, true)).dispatch();
 		}
 		
 		/**

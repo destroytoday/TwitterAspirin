@@ -3,7 +3,7 @@ package com.destroytoday.twitteraspirin.core {
 	import com.destroytoday.twitteraspirin.constants.TwitterURL;
 	import com.destroytoday.twitteraspirin.net.XMLLoaderPool;
 	import com.destroytoday.twitteraspirin.oauth.OAuth;
-	import com.destroytoday.twitteraspirin.util.TwitterParserUtil;
+	import com.destroytoday.twitteraspirin.util.TwitterParser;
 	import com.destroytoday.twitteraspirin.vo.UserVO;
 	
 	import flash.net.URLRequestMethod;
@@ -49,9 +49,9 @@ package com.destroytoday.twitteraspirin.core {
 		}
 		
 		protected function getUserHandler(loader:XMLLoader, data:XML):void {
-			TwitterParserUtil.parseAccountCallInfo(loader.responseHeaders);
-			
-			_getUserSignal.dispatch(this, TwitterParserUtil.parseUser(data));
+			TwitterParser.parseAccountCallInfo(loader.responseHeaders);
+
+			_getUserSignal.dispatch(this, TwitterParser.parseUser(data));
 		}
 	}
 }
