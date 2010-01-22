@@ -1,13 +1,16 @@
 package com.destroytoday.twitteraspirin.core {
-	import com.destroytoday.twitteraspirin.signals.AccountCallsSignal;
+	import com.destroytoday.twitteraspirin.signals.CallInfoSignal;
 
 	/**
 	 * The Account class consists of the data and methods for the authenticated user.
 	 * @author Jonnie Hallman
 	 */	
 	public class Account {
+		/**
+		 * @private
+		 */		
 		[Inject]
-		public var callsSignal:AccountCallsSignal;
+		public var callInfoSignal:CallInfoSignal;
 		
 		/**
 		 * @private 
@@ -62,7 +65,7 @@ package com.destroytoday.twitteraspirin.core {
 		 * Adds listeners to injected signals.
 		 */		
 		public function setupListeners():void {
-			callsSignal.add(callsHandler);
+			callInfoSignal.add(callInfoHandler);
 		}
 		
 		//
@@ -75,10 +78,12 @@ package com.destroytoday.twitteraspirin.core {
 		 * @param callLimit
 		 * @param callResetDate
 		 */		
-		protected function callsHandler(callsRemaining:int, callLimit:int, callResetDate:Date):void {
+		protected function callInfoHandler(callsRemaining:int, callLimit:int, callResetDate:Date):void {
 			_callsRemaining = callsRemaining;
 			_callLimit = callLimit;
 			_callResetDate = callResetDate;
+			
+			trace(callsRemaining, _callLimit, _callResetDate);
 		}
 	}
 }

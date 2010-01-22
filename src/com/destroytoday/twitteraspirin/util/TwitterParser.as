@@ -20,23 +20,6 @@ package com.destroytoday.twitteraspirin.util {
 			throw Error("The TwitterParser class cannot be instantiated.");
 		}
 		
-		public static function parseAccountCallInfo(headers:Array):void {
-			var remainingCalls:int, totalCalls:int;
-			var callsResetDate:Date;
-			
-			for each(var header:URLRequestHeader in headers) {
-				if (header.name == "X-Ratelimit-Limit") {
-					totalCalls = int(header.value);
-				} else if (header.name == "X-Ratelimit-Remaining") {
-					remainingCalls = int(header.value);
-				} else if (header.name == "X-Ratelimit-Reset") {
-					callsResetDate = new Date(int(header.value) * 1000);
-				}
-			}
-			
-			trace(totalCalls, remainingCalls, callsResetDate);
-		}
-		
 		/**
 		 * Parses a status's XML data into a status value object.
 		 * @param data the XML data, with node name 'status'
@@ -44,9 +27,9 @@ package com.destroytoday.twitteraspirin.util {
 		 */		
 		public static function parseStatus(data:XML):StatusVO {
 			var status:StatusVO = new StatusVO();
-			
+
 			status.id = Number(data.id);
-			status.createdAt = new Date(Date.parse(data.createdAt));
+			status.createdAt = new Date(Date.parse(data.created_at));
 			status.text = data.text;
 			status.source = data.source;
 			status.truncated = String(data.truncated) == "true";
@@ -54,6 +37,7 @@ package com.destroytoday.twitteraspirin.util {
 			status.inReplyToUserID = Number(data.in_reply_to_user_id);
 			status.inReplyToScreenName = data.in_reply_to_screen_name;
 			status.favorited = String(data.favorited) == "true";
+			status.user = parseUser(data.user[0]);
 			
 			// free XML from memory
 			System.disposeXML(data);

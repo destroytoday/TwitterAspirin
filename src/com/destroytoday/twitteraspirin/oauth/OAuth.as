@@ -5,9 +5,10 @@ package com.destroytoday.twitteraspirin.oauth {
 	import com.destroytoday.twitteraspirin.Twitter;
 	import com.destroytoday.twitteraspirin.constants.TwitterError;
 	import com.destroytoday.twitteraspirin.constants.TwitterURL;
+	import com.destroytoday.twitteraspirin.net.LoaderFactory;
 	import com.destroytoday.twitteraspirin.net.StringLoaderPool;
 	import com.destroytoday.twitteraspirin.net.XMLLoaderPool;
-	import com.destroytoday.twitteraspirin.signals.AccountCallsSignal;
+	import com.destroytoday.twitteraspirin.signals.CallInfoSignal;
 	import com.destroytoday.twitteraspirin.util.TwitterParser;
 	import com.destroytoday.twitteraspirin.vo.UserVO;
 	
@@ -29,13 +30,10 @@ package com.destroytoday.twitteraspirin.oauth {
 	 */	
 	public class OAuth {
 		[Inject]
-		public var accountCallsSignal:AccountCallsSignal;
-		
+		public var loaderFactory:LoaderFactory;
+
 		[Inject]
-		public var stringLoaderPool:StringLoaderPool;
-		
-		[Inject]
-		public var xmlLoaderPool:XMLLoaderPool;
+		public var accountCallsSignal:CallInfoSignal;
 		
 		/**
 		 * @private 
@@ -75,7 +73,7 @@ package com.destroytoday.twitteraspirin.oauth {
 		/**
 		 * @private 
 		 */	
-		protected var accessToken:OAuthToken;
+		protected var _accessToken:OAuthToken;
 		
 		/**
 		 * Instantiates the OAuth class.
@@ -125,6 +123,26 @@ package com.destroytoday.twitteraspirin.oauth {
 		}
 		
 		//
+		// Property getters/setters
+		//
+		
+		/**
+		 * The access token for building requests. Setting it through its setter method skips verification.
+		 * @return 
+		 */		
+		public function get accessToken():OAuthToken {
+			return _accessToken;
+		}
+		
+		/**
+		 * 
+		 * @param token
+		 */		
+		public function set accessToken(token:OAuthToken):void {
+			_accessToken = token;
+		}
+		
+		//
 		// Methods
 		//
 		
@@ -144,9 +162,7 @@ package com.destroytoday.twitteraspirin.oauth {
 		 */		
 		public function getRequestToken():StringLoader {
 			var request:OAuthRequest = new OAuthRequest(URLRequestMethod.GET, TwitterURL.OAUTH_REQUEST_TOKEN, null, consumer);
-			var loader:StringLoader = stringLoaderPool.getObject() as StringLoader;
-			
-			loader.completeSignal.addOnce(getRequestTokenCompleteHandler);
+			var loader:StringLoader = loaderFactory.getStringLoader(getRequestTokenHandler);
 			
 			loader.request.url = request.buildRequest(signature);
 			
@@ -183,9 +199,7 @@ package com.destroytoday.twitteraspirin.oauth {
 			}
 
 			var request:OAuthRequest = new OAuthRequest(URLRequestMethod.GET, TwitterURL.OAUTH_ACCESS_TOKEN, {oauth_verifier: pin}, consumer, requestToken);
-			var loader:StringLoader = stringLoaderPool.getObject() as StringLoader;
-			
-			loader.completeSignal.addOnce(getAccessTokenCompleteHandler);
+			var loader:StringLoader = loaderFactory.getStringLoader(getAccessTokenHandler);
 			
 			loader.request.url = request.buildRequest(signature);
 			
@@ -201,12 +215,10 @@ package com.destroytoday.twitteraspirin.oauth {
 		 * @return the XMLLoader loading the verification
 		 */		
 		public function verifyAccessToken(token:OAuthToken):XMLLoader {
-			accessToken = token;
+			_accessToken = token;
 			
-			var request:OAuthRequest = new OAuthRequest(URLRequestMethod.GET, TwitterURL.OAUTH_VERIFY_ACCESS_TOKEN, null, consumer, accessToken);
-			var loader:XMLLoader = xmlLoaderPool.getObject() as XMLLoader;
-			
-			loader.completeSignal.addOnce(verifyAccessTokenHandler);
+			var request:OAuthRequest = new OAuthRequest(URLRequestMethod.GET, TwitterURL.OAUTH_VERIFY_ACCESS_TOKEN, null, consumer, _accessToken);
+			var loader:XMLLoader = loaderFactory.getXMLLoader(verifyAccessTokenHandler);
 			
 			loader.includeResponseInfo = false;
 			loader.request.url = request.buildRequest(signature);
@@ -217,7 +229,7 @@ package com.destroytoday.twitteraspirin.oauth {
 		}
 		
 		public function parseURL(method:String, url:String, parameters:Object = null):String {
-			return new OAuthRequest(method, url, parameters, consumer, accessToken).buildRequest(new OAuthSignatureMethod_HMAC_SHA1());
+			return new OAuthRequest(method, url, parameters, consumer, _accessToken).buildRequest(new OAuthSignatureMethod_HMAC_SHA1());
 		}
 		
 		/**
@@ -225,12 +237,10 @@ package com.destroytoday.twitteraspirin.oauth {
 		 * @param loader the StringLoader instance
 		 * @param data the request token data in string query format
 		 */		
-		protected function getRequestTokenCompleteHandler(loader:StringLoader, data:String):void {
+		protected function getRequestTokenHandler(loader:StringLoader, data:String):void {
 			requestToken = OAuthUtil.getTokenFromResponse(data);
 
 			_requestTokenSignal.dispatch(this, requestToken);
-			
-			stringLoaderPool.disposeObject(loader);
 		}
 		
 		/**
@@ -238,10 +248,8 @@ package com.destroytoday.twitteraspirin.oauth {
 		 * @param loader the StringLoader instance
 		 * @param data the access token data in string query format
 		 */		
-		protected function getAccessTokenCompleteHandler(loader:StringLoader, data:String):void {
-			_accessTokenSignal.dispatch(this, accessToken);
-			
-			stringLoaderPool.disposeObject(loader);
+		protected function getAccessTokenHandler(loader:StringLoader, data:String):void {
+			_accessTokenSignal.dispatch(this, _accessToken);
 		}
 		
 		/**
@@ -252,9 +260,7 @@ package com.destroytoday.twitteraspirin.oauth {
 		protected function verifyAccessTokenHandler(loader:XMLLoader, data:XML):void {
 			//var user:UserVO = TwitterParserUtil.parseUser(data);
 
-			_verifyAccessTokenSignal.dispatch(this, accessToken);
-			
-			xmlLoaderPool.disposeObject(loader);
+			_verifyAccessTokenSignal.dispatch(this, _accessToken);
 		}
 	}
 }

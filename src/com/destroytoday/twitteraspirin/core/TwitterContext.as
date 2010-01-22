@@ -2,10 +2,11 @@ package com.destroytoday.twitteraspirin.core {
 	import com.destroytoday.pool.ObjectPool;
 	import com.destroytoday.twitteraspirin.Twitter;
 	import com.destroytoday.twitteraspirin.commands.StartupCommand;
+	import com.destroytoday.twitteraspirin.net.LoaderFactory;
 	import com.destroytoday.twitteraspirin.net.StringLoaderPool;
 	import com.destroytoday.twitteraspirin.net.XMLLoaderPool;
 	import com.destroytoday.twitteraspirin.oauth.OAuth;
-	import com.destroytoday.twitteraspirin.signals.AccountCallsSignal;
+	import com.destroytoday.twitteraspirin.signals.CallInfoSignal;
 	import com.destroytoday.twitteraspirin.signals.StartupSignal;
 	
 	import org.osflash.signals.Signal;
@@ -46,11 +47,10 @@ package com.destroytoday.twitteraspirin.core {
 		protected function startup():void {
 			injector.mapValue(ISignalCommandMap, signalCommandMap);
 			
-			injector.mapSingleton(AccountCallsSignal);
+			injector.mapSingleton(LoaderFactory);
+			injector.mapSingleton(CallInfoSignal);
 			
 			injector.mapValue(Twitter, twitter);
-			injector.mapValue(StringLoaderPool, twitter.stringLoaderPool);
-			injector.mapValue(XMLLoaderPool, twitter.xmlLoaderPool);
 			injector.mapValue(OAuth, twitter.oauth);
 			injector.mapValue(Account, twitter.account);
 			injector.mapValue(Users, twitter.users);

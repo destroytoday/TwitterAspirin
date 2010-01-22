@@ -30,9 +30,19 @@ package com.destroytoday.twitteraspirin.constants {
 		public static const GET_USER:String = "http://twitter.com/users/show.xml";
 		
 		/**
+		 * GET 
+		 */		
+		public static const GET_STATUS:String = "http://twitter.com/statuses/show/{id}.xml";
+		
+		/**
 		 * POST 
 		 */		
 		public static const UPDATE_STATUS:String = "https://twitter.com/statuses/update.xml";
+		
+		/**
+		 * GET 
+		 */		
+		public static const GET_MENTIONS_TIMELINE:String = "https://twitter.com/statuses/mentions.xml";
 		
 		/**
 		 * @private
