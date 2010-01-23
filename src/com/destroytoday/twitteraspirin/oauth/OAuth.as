@@ -249,6 +249,8 @@ package com.destroytoday.twitteraspirin.oauth {
 		 * @param data the access token data in string query format
 		 */		
 		protected function getAccessTokenHandler(loader:StringLoader, data:String):void {
+			_accessToken = OAuthUtil.getTokenFromResponse(data);
+			
 			_accessTokenSignal.dispatch(this, _accessToken);
 		}
 		
