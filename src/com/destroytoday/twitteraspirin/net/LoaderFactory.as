@@ -87,7 +87,8 @@ package com.destroytoday.twitteraspirin.net {
 		 * @param data
 		 */		
 		protected function completeHandler(loader:GenericLoader, data:*):void {
-			if (loader.includeResponseInfo) {
+			trace("completeHandler", data);
+			if (loader.includeResponseInfo && loader.responseStatus == 200) {
 				var remainingCalls:int, totalCalls:int;
 				var callsResetDate:Date;
 
@@ -101,7 +102,9 @@ package com.destroytoday.twitteraspirin.net {
 					}
 				}
 				
-				callInfoSignal.dispatch(remainingCalls, totalCalls, callsResetDate);
+				if (remainingCalls > -1 && totalCalls > -1 && callsResetDate) {
+					callInfoSignal.dispatch(remainingCalls, totalCalls, callsResetDate);
+				}
 			}
 			
 			disposeLoader(loader);

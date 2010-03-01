@@ -1,7 +1,6 @@
 package com.destroytoday.twitteraspirin {
 	import com.destroytoday.net.StringLoader;
 	import com.destroytoday.net.XMLLoader;
-	import com.destroytoday.pool.ObjectPool;
 	import com.destroytoday.twitteraspirin.core.Account;
 	import com.destroytoday.twitteraspirin.core.Statuses;
 	import com.destroytoday.twitteraspirin.core.TwitterContext;
@@ -9,10 +8,6 @@ package com.destroytoday.twitteraspirin {
 	import com.destroytoday.twitteraspirin.net.StringLoaderPool;
 	import com.destroytoday.twitteraspirin.net.XMLLoaderPool;
 	import com.destroytoday.twitteraspirin.oauth.OAuth;
-	
-	import org.iotashan.oauth.OAuthConsumer;
-	import org.robotlegs.base.ContextBase;
-	import org.robotlegs.core.IContext;
 
 	/**
 	 * The Twitter class

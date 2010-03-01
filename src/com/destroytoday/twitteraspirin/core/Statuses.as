@@ -43,6 +43,11 @@ package com.destroytoday.twitteraspirin.core {
 		/**
 		 * @private 
 		 */
+		protected var _getHomeTimelineSignal:Signal = new Signal(Statuses, Vector.<StatusVO>);
+		
+		/**
+		 * @private 
+		 */
 		protected var _getMentionsTimelineSignal:Signal = new Signal(Statuses, Vector.<StatusVO>);
 		
 		/**
@@ -73,6 +78,14 @@ package com.destroytoday.twitteraspirin.core {
 		}
 		
 		/**
+		 * Returns the Signal that dispatches when getHomeTimeline is complete.
+		 * @return 
+		 */		
+		public function get getHomeTimelineSignal():Signal {
+			return _getHomeTimelineSignal;
+		}
+		
+		/**
 		 * Returns the Signal that dispatches when getMentionsTimeline is complete.
 		 * @return 
 		 */		
@@ -96,7 +109,9 @@ package com.destroytoday.twitteraspirin.core {
 		public function getStatus(id:Number):XMLLoader {
 			var loader:XMLLoader = loaderFactory.getXMLLoader(getStatusHandler);
 
-			loader.load(oauth.parseURL(URLRequestMethod.GET, (TwitterURL.GET_STATUS).replace("{id}", id)));
+			loader.request = oauth.getURLRequest((TwitterURL.GET_STATUS).replace("{id}", id), URLRequestMethod.GET);
+			
+			loader.load();
 			
 			return loader;
 		}
@@ -110,20 +125,37 @@ package com.destroytoday.twitteraspirin.core {
 		 * @return the loader of the operation
 		 */		
 		public function updateStatus(status:String, inReplyToStatusID:Number = NaN, latitude:Number = NaN, longitude:Number = NaN):XMLLoader {
-			var parameters:URLVariables = new URLVariables();
+			var parameters:Object = {};
 
+			//TODO - fix issue with statuses including linebreaks
+			
 			parameters['status'] = status;
 			if (inReplyToStatusID > 0) parameters['in_reply_to_status_id'] = inReplyToStatusID;
 			if (latitude < 0 || latitude >= 0) parameters['latitude'] = latitude;
 			if (longitude < 0 || longitude >= 0) parameters['longitude'] = longitude;
 			
 			var loader:XMLLoader = loaderFactory.getXMLLoader(updateStatusHandler);
-			
-			// updateStatus doesn't use API calls
-			loader.includeResponseInfo = false;
-			loader.request.method = URLRequestMethod.POST;
 
-			loader.load(oauth.parseURL(URLRequestMethod.POST, TwitterURL.UPDATE_STATUS, parameters));
+			loader.request = oauth.getURLRequest(TwitterURL.UPDATE_STATUS, URLRequestMethod.POST, parameters);
+
+			loader.load();
+			
+			return loader;
+		}
+		
+		public function getHomeTimeline(sinceID:Number = NaN, maxID:Number = NaN, count:int = 20, page:int = 1):XMLLoader {
+			var parameters:Object = {};
+			
+			if (sinceID > 0) parameters['since_id'] = sinceID;
+			if (maxID > 0) parameters['max_id'] = maxID;
+			parameters['count'] = count;
+			if (page > 1) parameters['page'] = page;
+			
+			var loader:XMLLoader = loaderFactory.getXMLLoader(getHomeTimelineHandler);
+			
+			loader.request = oauth.getURLRequest(TwitterURL.GET_HOME_TIMELINE, URLRequestMethod.GET, parameters);
+			
+			loader.load();
 			
 			return loader;
 		}
@@ -137,7 +169,7 @@ package com.destroytoday.twitteraspirin.core {
 		 * @return the loader of the operation
 		 */		
 		public function getMentionsTimeline(sinceID:Number = NaN, maxID:Number = NaN, count:int = 20, page:int = 1):XMLLoader {
-			var parameters:URLVariables = new URLVariables();
+			var parameters:Object = {};
 			
 			if (sinceID > 0) parameters['since_id'] = sinceID;
 			if (maxID > 0) parameters['max_id'] = maxID;
@@ -146,7 +178,9 @@ package com.destroytoday.twitteraspirin.core {
 			
 			var loader:XMLLoader = loaderFactory.getXMLLoader(getMentionsTimelineHandler);
 			
-			loader.load(oauth.parseURL(URLRequestMethod.GET, TwitterURL.GET_MENTIONS_TIMELINE, parameters));
+			loader.request = oauth.getURLRequest(TwitterURL.GET_MENTIONS_TIMELINE, URLRequestMethod.GET, parameters);
+			
+			loader.load();
 			
 			return loader;
 		}
@@ -164,7 +198,7 @@ package com.destroytoday.twitteraspirin.core {
 		 * @return 
 		 */		
 		public function getSearchTimeline(query:String, sinceID:Number = NaN, count:int = 20, page:int = 1, geocode:String = null, showUser:Boolean = false, language:String = null, locale:String = null):XMLLoader {
-			var parameters:URLVariables = new URLVariables();
+			var parameters:Object = {};
 			
 			parameters['q'] = query;
 			if (sinceID > 0) parameters['sinceID'] = sinceID;
@@ -179,8 +213,9 @@ package com.destroytoday.twitteraspirin.core {
 			
 			// search does use API calls, but doesn't return call info headers
 			loader.includeResponseInfo = false;
-
-			loader.load(oauth.parseURL(URLRequestMethod.GET, TwitterURL.GET_SEARCH_TIMELINE, parameters));
+			loader.request = oauth.getURLRequest(TwitterURL.GET_SEARCH_TIMELINE, URLRequestMethod.GET, parameters);
+			
+			loader.load();
 			
 			return loader;
 		}
@@ -200,7 +235,26 @@ package com.destroytoday.twitteraspirin.core {
 		 * @param data
 		 */		
 		protected function updateStatusHandler(loader:XMLLoader, data:XML):void {
-			_updateStatusSignal.dispatch(this, TwitterParser.parseStatus(data));
+			if (loader.responseStatus == 200) {
+				_updateStatusSignal.dispatch(this, TwitterParser.parseStatus(data));
+			} else {
+				//TODO dispatch error
+				trace(ObjectUtil.toString(loader.responseHeaders), data);
+			}
+		}
+		
+		/**
+		 * @private
+		 * @param loader
+		 * @param data
+		 */		
+		protected function getHomeTimelineHandler(loader:XMLLoader, data:XML):void {
+			if (loader.responseStatus == 200) {
+				_getHomeTimelineSignal.dispatch(this, TwitterParser.parseStatuses(data));
+			} else {
+				//TODO dispatch error
+				trace(ObjectUtil.toString(loader.responseHeaders), data);
+			}
 		}
 		
 		/**
@@ -209,7 +263,12 @@ package com.destroytoday.twitteraspirin.core {
 		 * @param data
 		 */		
 		protected function getMentionsTimelineHandler(loader:XMLLoader, data:XML):void {
-			_getMentionsTimelineSignal.dispatch(this, TwitterParser.parseStatuses(data));
+			if (loader.responseStatus == 200) {
+				_getMentionsTimelineSignal.dispatch(this, TwitterParser.parseStatuses(data));
+			} else {
+				//TODO dispatch error
+				trace(ObjectUtil.toString(loader.responseHeaders), data);
+			}
 		}
 		
 		/**
@@ -218,8 +277,9 @@ package com.destroytoday.twitteraspirin.core {
 		 * @param data
 		 */		
 		protected function getSearchTimelineHandler(loader:XMLLoader, data:XML):void {
-			trace(data);
 			_getSearchTimelineSignal.dispatch(this, TwitterParser.parseSearchStatuses(data));
+			
+			//TODO error handling
 		}
 	}
 }

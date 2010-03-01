@@ -27,22 +27,27 @@ package com.destroytoday.twitteraspirin.constants {
 		/**
 		 * GET 
 		 */		
-		public static const GET_USER:String = "http://twitter.com/users/show.xml";
+		public static const GET_USER:String = "https://api.twitter.com/1/users/show.xml";
 		
 		/**
 		 * GET 
 		 */		
-		public static const GET_STATUS:String = "http://twitter.com/statuses/show/{id}.xml";
+		public static const GET_STATUS:String = "https://api.twitter.com/1/statuses/show/{id}.xml";
 		
 		/**
 		 * POST 
 		 */		
-		public static const UPDATE_STATUS:String = "https://twitter.com/statuses/update.xml";
+		public static const UPDATE_STATUS:String = "https://api.twitter.com/1/statuses/update.xml";
 		
 		/**
 		 * GET 
 		 */		
-		public static const GET_MENTIONS_TIMELINE:String = "https://twitter.com/statuses/mentions.xml";
+		public static const GET_HOME_TIMELINE:String = "https://api.twitter.com/1/statuses/home_timeline.xml";
+		
+		/**
+		 * GET 
+		 */		
+		public static const GET_MENTIONS_TIMELINE:String = "https://api.twitter.com/1/statuses/mentions.xml";
 		
 		/**
 		 * GET 

@@ -53,7 +53,7 @@ package com.destroytoday.twitteraspirin.core {
 		 * @param screenName the screen name of the user
 		 * @return 
 		 */		
-		public function getUser(id:Number = NaN, screenName:String = null):XMLLoader {
+		/*public function getUser(id:Number = NaN, screenName:String = null):XMLLoader {
 			var parameters:URLVariables = new URLVariables();
 			
 			if (id > 0) {
@@ -69,7 +69,7 @@ package com.destroytoday.twitteraspirin.core {
 			loader.load(oauth.parseURL(URLRequestMethod.GET, TwitterURL.GET_USER, parameters));
 			
 			return loader;
-		}
+		}*/
 		
 		/**
 		 * @private
