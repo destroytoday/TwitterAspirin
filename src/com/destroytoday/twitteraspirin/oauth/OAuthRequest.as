@@ -2,21 +2,24 @@ package com.destroytoday.twitteraspirin.oauth {
 	import com.destroytoday.net.URLParameter;
 	import com.destroytoday.pool.ObjectWaterpark;
 	import com.destroytoday.twitteraspirin.constants.OAuthSignatureMethod;
+	import com.destroytoday.twitteraspirin.vo.OAuthConsumerVO;
+	import com.destroytoday.twitteraspirin.vo.OAuthTokenVO;
 	import com.hurlant.crypto.Crypto;
-	import com.hurlant.crypto.hash.HMAC;
 	import com.hurlant.util.Base64;
 	import com.hurlant.util.Hex;
 	
 	import flash.net.URLRequest;
 	import flash.net.URLRequestMethod;
-	import flash.net.URLVariables;
 	
-	import mx.utils.ObjectUtil;
 	import mx.utils.UIDUtil;
-	import com.destroytoday.twitteraspirin.vo.OAuthTokenVO;
-	import com.destroytoday.twitteraspirin.vo.OAuthConsumerVO;
 
 	public class OAuthRequest {
+		//--------------------------------------------------------------------------
+		//
+		//  Properties
+		//
+		//--------------------------------------------------------------------------
+		
 		public var method:String;
 		
 		public var url:String;
@@ -31,12 +34,24 @@ package com.destroytoday.twitteraspirin.oauth {
 		
 		protected var parameterList:Vector.<URLParameter> = new Vector.<URLParameter>();
 		
+		//--------------------------------------------------------------------------
+		//
+		//  Constructor
+		//
+		//--------------------------------------------------------------------------
+		
 		public function OAuthRequest(consumer:OAuthConsumerVO = null, url:String = null, method:String = URLRequestMethod.GET, token:OAuthTokenVO = null) {
 			this.consumer = consumer;
 			this.url = url;
 			this.method = method;
 			this.token = token;
 		}
+		
+		//--------------------------------------------------------------------------
+		//
+		//  Methods
+		//
+		//--------------------------------------------------------------------------
 		
 		public function getURLRequest(parameterMap:Object = null):URLRequest {
 			disposeParameterList();

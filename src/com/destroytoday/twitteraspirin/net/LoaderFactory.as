@@ -3,7 +3,6 @@ package com.destroytoday.twitteraspirin.net {
 	import com.destroytoday.net.GenericLoaderError;
 	import com.destroytoday.net.StringLoader;
 	import com.destroytoday.net.XMLLoader;
-	import com.destroytoday.twitteraspirin.signals.CallInfoSignal;
 	
 	import flash.net.URLRequestHeader;
 
@@ -12,9 +11,6 @@ package com.destroytoday.twitteraspirin.net {
 	 * @author Jonnie Hallman
 	 */	
 	public class LoaderFactory {
-		[Inject]
-		public var callInfoSignal:CallInfoSignal;
-		
 		/**
 		 * @private 
 		 */		
@@ -36,10 +32,10 @@ package com.destroytoday.twitteraspirin.net {
 		 * @param completeHandler
 		 * @return 
 		 */		
-		public function getXMLLoader(completeHandler:Function):XMLLoader {
+		public function getXMLLoader(completeHandler:Function, errorHandler:Function):XMLLoader {
 			var loader:XMLLoader = xmlLoaderPool.getObject() as XMLLoader;
 			
-			addListeners(loader, completeHandler);
+			addListeners(loader, completeHandler, errorHandler);
 			
 			return loader;
 		}
@@ -49,10 +45,10 @@ package com.destroytoday.twitteraspirin.net {
 		 * @param completeHandler
 		 * @return 
 		 */		
-		public function getStringLoader(completeHandler:Function):StringLoader {
+		public function getStringLoader(completeHandler:Function, errorHandler:Function):StringLoader {
 			var loader:StringLoader = stringLoaderPool.getObject() as StringLoader;
 			
-			addListeners(loader, completeHandler);
+			addListeners(loader, completeHandler, errorHandler);
 			
 			return loader;
 		}
@@ -62,18 +58,18 @@ package com.destroytoday.twitteraspirin.net {
 		 * @param loader
 		 * @param completeHandler
 		 */		
-		protected function addListeners(loader:GenericLoader, completeHandler:Function):void {
-			loader.completeSignal.addOnce(completeHandler);
-			loader.completeSignal.addOnce(this.completeHandler);
-			loader.errorSignal.addOnce(errorHandler);
-			loader.cancelSignal.addOnce(cancelHandler);
+		protected function addListeners(loader:GenericLoader, completeHandler:Function, errorHandler:Function):void {
+			loader.completeSignal.add(completeHandler);
+			loader.completeSignal.add(this.completeHandler);
+			loader.errorSignal.add(errorHandler);
+			loader.errorSignal.add(this.errorHandler);
 		}
 		
 		/**
 		 * @private
 		 * @param loader
 		 */		
-		protected function disposeLoader(loader:GenericLoader):void {
+		public function disposeLoader(loader:GenericLoader):void {
 			if (loader is XMLLoader) {
 				xmlLoaderPool.disposeObject(loader);
 			} else if (loader is StringLoader) {
@@ -87,7 +83,6 @@ package com.destroytoday.twitteraspirin.net {
 		 * @param data
 		 */		
 		protected function completeHandler(loader:GenericLoader, data:*):void {
-			trace("completeHandler", data);
 			if (loader.includeResponseInfo && loader.responseStatus == 200) {
 				var remainingCalls:int, totalCalls:int;
 				var callsResetDate:Date;
@@ -103,11 +98,11 @@ package com.destroytoday.twitteraspirin.net {
 				}
 				
 				if (remainingCalls > -1 && totalCalls > -1 && callsResetDate) {
-					callInfoSignal.dispatch(remainingCalls, totalCalls, callsResetDate);
+					//account.gotCallInfo.dispatch(remainingCalls, totalCalls, callsResetDate);
 				}
 			}
 			
-			disposeLoader(loader);
+			if (!loader.storage || !loader.storage.asyncParse) disposeLoader(loader);
 		}
 		
 		/**
@@ -117,8 +112,6 @@ package com.destroytoday.twitteraspirin.net {
 		 * @param message
 		 */		
 		protected function errorHandler(loader:GenericLoader, type:String, message:String):void {
-			trace("LoaderFactory:error", type, message);
-			
 			// If the loader is set to retry, don't dispose unless the retry count has been exceeded.
 			if (loader.retryCount == 0 || type == GenericLoaderError.RETRY_COUNT) {
 				disposeLoader(loader);
@@ -130,8 +123,6 @@ package com.destroytoday.twitteraspirin.net {
 		 * @param loader
 		 */		
 		protected function cancelHandler(loader:GenericLoader):void {
-			trace("LoaderFactory:cancel");
-			
 			disposeLoader(loader);
 		}
 	}

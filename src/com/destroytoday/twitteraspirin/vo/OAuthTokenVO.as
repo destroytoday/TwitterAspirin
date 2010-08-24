@@ -7,5 +7,10 @@ package com.destroytoday.twitteraspirin.vo {
 			this.key = key;
 			this.secret = secret;
 		}
+		
+		public function toString():String
+		{
+			return "[OAuthTokenVO(key: " + key + ", secret: " + secret + ")]";
+		}
 	}
 }

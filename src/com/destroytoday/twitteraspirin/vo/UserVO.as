@@ -1,6 +1,6 @@
 package com.destroytoday.twitteraspirin.vo {
 	public class UserVO {
-		public var id:Number;
+		public var id:int;
 		
 		public var name:String;
 		
@@ -16,7 +16,7 @@ package com.destroytoday.twitteraspirin.vo {
 		
 		public var language:String;
 		
-		public var protectedAccount:Boolean;
+		public var isProtected:Boolean;
 		
 		public var followersCount:int;
 		
@@ -25,6 +25,8 @@ package com.destroytoday.twitteraspirin.vo {
 		public var createdAt:Date;
 		
 		public var favoritesCount:int; // favourites
+
+		public var listedCount:int;
 		
 		public var utcOffset:int;
 		
